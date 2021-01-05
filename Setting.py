@@ -8,6 +8,7 @@ class Setting:
 
         try:
             self.fileExts = settingJson["fileExts"]
+            self.fileExtsOnly = settingJson["fileExtsOnly"]
             self.fileDir = settingJson["fileDir"]
             self.getInfoInterval = settingJson["getInfoInterval"]
             self.fileNameFormat = settingJson["fileNameFormat"]

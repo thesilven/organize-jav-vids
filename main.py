@@ -5,6 +5,7 @@ from DataManager import DataManager
 from JAVInfoGetter import JAVInfoGetter_javlibrary, JAVInfoGetter_javdb
 from Executor import Executor
 from getch import getch
+import os
 
 if __name__ == "__main__":
     colorama.init()
@@ -40,6 +41,45 @@ if __name__ == "__main__":
             dataManager.Add(info)
             continue
         executor.HandleFiles(info, bangou, fileNames)
+
+    # cleanup
+    for dir_path, dirs, files in os.walk(setting.fileDir, topdown=False):
+        for file in files:
+            remove_file = False
+
+            full_file_name = os.sep.join([dir_path, file])
+            file_name, file_ext = os.path.splitext(file)
+            try:
+                if file_ext in setting.fileExtsOnly:
+                    file_size = os.path.getsize(full_file_name) >> 20
+                    # print(file_size, full_file_name)
+                    if setting.minFileSizeMB > file_size:
+                        remove_file = True
+                else:
+                    remove_file = True
+
+                if remove_file:
+                    if setting.dryRun:
+                        print(
+                            f"{colorama.Back.MAGENTA}Deleting non-vid file. File name {str(full_file_name)}{colorama.Back.RESET}")
+                    else:
+                        os.unlink(full_file_name)
+            except OSError as ex:
+                print(ex)
+
+        if dir_path == setting.fileDir:
+            break
+        try:
+            if setting.dryRun:
+                pass
+                # print(
+                #     f"{colorama.Back.MAGENTA}Removing directory if empty. Dir name {str(dir_path)}{colorama.Back.RESET}")
+            else:
+                os.rmdir(dir_path)
+        except OSError as ex:
+            # print(ex)
+            pass
+        
 
     dataManager.Save()
     print("Press Any Button to Exit")

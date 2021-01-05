@@ -2,6 +2,7 @@ import requests
 import colorama
 from getch import getch
 from pathlib import Path
+import os
 
 
 def lenInBytes(string):
@@ -42,9 +43,10 @@ class Executor:
             infokey = "{" + key + "}"
             infovalue = info[key]
             if type(infovalue) is list:
-                infovalue = ""
-                for element in info[key]:
-                    infovalue = infovalue + "[" + element + "]"
+                infovalue = ','.join(info[key])
+                # infovalue = ""
+                # for element in info[key]:
+                #     infovalue = infovalue + "[" + element + "]"
             newFileName = newFileName.replace(infokey, infovalue)
 
         # handle multiple files with the same bangou
@@ -59,15 +61,16 @@ class Executor:
             print(f"After truncate file name: {newFileName}")
         newName = newFileName + numberStr + path.suffix
 
-        if path.name == newName:
-            print(
-                f"File {colorama.Back.BLUE}{str(path)}{colorama.Back.RESET} no need to rename")
-            return
+        # if path.name == newName:
+        #     print(
+        #         f"File {colorama.Back.BLUE}{str(path)}{colorama.Back.RESET} no need to rename")
+        #     return
 
         self.DoRename(path, newName)
 
     def DoRename(self, path, newName):
-        newPath = path.parents[0] / newName
+        # newPath = path.parents[0] / newName
+        newPath = self.setting.fileDir + os.sep + newName
 
         print(f"Rename {colorama.Back.BLUE}{str(path)}{colorama.Back.RESET}\n" +
               f"To     {colorama.Back.GREEN}{str(newPath)}{colorama.Back.RESET}")
@@ -85,6 +88,8 @@ class Executor:
                 return
 
         try:
+            newPathPath = Path(newPath)
+            newPathPath.parent.mkdir(parents=True, exist_ok=True)
             path.rename(newPath)
         except Exception as e:
             print(
