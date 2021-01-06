@@ -3,6 +3,7 @@ import time
 import json
 import requests
 import colorama
+import cloudscraper
 from bs4 import BeautifulSoup
 
 # TODO: find chinese title source website
@@ -203,6 +204,128 @@ class JAVInfoGetter_javdb(JAVInfoGetter):
 
                 if self.infoDict['ID'] and self.infoDict['ID'] == bangou:
                     return link
+        except Exception as ex:
+            # TODO: get web content failed
+            print(ex)
+            return link
+
+        return link
+
+    def ParseBangou(self):
+        try:
+            return self.infoDict["ID"]
+        except:
+            return ""
+
+    def ParseTitle(self, bangou):
+        try:
+            return self.soup.select_one(".title").select_one("strong").getText()
+        except:
+            return ""
+
+    def ParseTag(self):
+        try:
+            tags = self.infoDict["Tags"].split(",")
+            tags = [tag.strip(u"\xa0").strip(" ") for tag in tags]
+            return tags
+        except:
+            return ""
+
+    def ParseMaker(self):
+        try:
+            return self.infoDict["Maker"]
+        except:
+            return ""
+
+    def ParseDirector(self):
+        try:
+            return self.infoDict["Director"]
+        except:
+            return ""
+
+    def ParseActor(self):
+        try:
+            return self.infoDict["Actor(s)"]
+        except:
+            return ""
+
+    def ParseAlbum(self):
+        try:
+            return self.soup.select_one(".video-cover")["src"]
+        except:
+            return ""
+
+    def ParseDuration(self):
+        try:
+            duration = self.infoDict["Duration"]
+            duration = re.search("\d+", duration).group(0)
+            return duration
+        except:
+            return ""
+
+    def ParseDate(self):
+        try:
+            return self.infoDict["Date"]
+        except:
+            return ""
+
+    def ParseThumbs(self):
+        try:
+            imgs = self.soup.select_one(".preview-images").select("a")
+            imgs = [img["href"] for img in imgs]
+            return imgs
+        except:
+            return ""
+
+    def ParseRating(self):
+        try:
+            rating = self.infoDict["Rating"]
+            rating = re.search("\d+.\d+", rating).group(0)
+            return rating
+        except:
+            return ""
+
+class JAVInfoGetter_r18(JAVInfoGetter):
+    def __init__(self, setting, dataManager):
+        super().__init__(setting, dataManager)
+
+    def GetWebContent(self, bangou):  # XXX: improve
+        link = "https://www.r18.com/common/search/searchword=" + bangou
+        scraper = cloudscraper.CloudScraper()
+        response = scraper.get(link)
+        self.soup = BeautifulSoup(response.text, "html.parser")
+        item_list = self.soup.select(".item-list")
+        # print(item_list)
+        if not item_list:
+            return ""
+        try:  # TODO: check try range
+            for item in item_list:
+                link = item.select_one('a')['href']
+                # print(link)
+                response = scraper.get(link)
+                self.soup = BeautifulSoup(response.text, "html.parser")
+                infos = self.soup.select_one(".product-details").dl
+                print('infos', infos)
+                # print('infos children', infos.children())
+
+                self.infoDict = dict()
+                key = ''
+                value = ''
+                for child in infos.children():
+                    print(child)
+                    if child.name == 'dt':
+                        key = child.getText()
+                    elif child.name == 'dd':
+                        value = child.getText()
+
+                    if key and value:
+                        print(key, value)
+                        self.infoDict[key.strip()] = value.strip()
+                        key = ''
+                        value = ''
+
+                # if self.infoDict['ID'] and self.infoDict['ID'] == bangou:
+                #     return link
         except Exception as ex:
             # TODO: get web content failed
             print(ex)

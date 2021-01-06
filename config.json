@@ -29,7 +29,7 @@
         "1080p"
     ],
     "getInfoInterval": 0.5,
-    "fileNameFormat": "{bangou}[{actors}]",
+    "fileNameFormat": "{bangou}[{title}]",
     "language": "en",
     "saveAlbum": false,
     "saveThumb": false,
@@ -37,7 +37,7 @@
     "maxFileLength": 255,
     "minFileSizeMB": 100,
     "renameCheck": false,
-    "retryFailedDB": false,
+    "retryFailedDB": true,
     "javdbToken": "eyJfcmFpbHMiOnsibWVzc2FnZSI6IkltNUJRMlJZYnkxRFFYaE9VM1ZHWVdOQ09FSnFJZz09IiwiZXhwIjoiMjAyMS0wMS0yMVQwMzozMToxMi4wMDBaIiwicHVyIjoiY29va2llLnJlbWVtYmVyX21lX3Rva2VuIn19--ed3dd15efafda4aa9650b85084f6abaa771183b8",
     "mongoDbUrl": "mongodb://172.30.1.7"
 }

@@ -13,8 +13,7 @@ if __name__ == "__main__":
     fileNameParser = FileNameParser(
         setting.fileExts, setting.minFileSizeMB, setting.ignoreWords)
     dataManager = DataManager(setting)
-    infoGetters = [JAVInfoGetter_javlibrary(setting, dataManager), JAVInfoGetter_javdb(
-        setting, dataManager)]
+    infoGetters = [JAVInfoGetter_javlibrary(setting, dataManager), JAVInfoGetter_javdb(setting, dataManager)]
     executor = Executor(setting)
 
     if setting.dryRun:
@@ -60,8 +59,9 @@ if __name__ == "__main__":
 
                 if remove_file:
                     if setting.dryRun:
-                        print(
-                            f"{colorama.Back.MAGENTA}Deleting non-vid file. File name {str(full_file_name)}{colorama.Back.RESET}")
+                        pass
+                        # print(
+                        #     f"{colorama.Back.MAGENTA}Deleting non-vid file. File name {str(full_file_name)}{colorama.Back.RESET}")
                     else:
                         os.unlink(full_file_name)
             except OSError as ex:
