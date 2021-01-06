@@ -47,7 +47,8 @@ class Executor:
                 # infovalue = ""
                 # for element in info[key]:
                 #     infovalue = infovalue + "[" + element + "]"
-            newFileName = newFileName.replace(infokey, infovalue)
+            if type(infovalue) is str:
+                newFileName = newFileName.replace(infokey, infovalue)
 
         # handle multiple files with the same bangou
         numberStr = ("_" + str(index+1)) if (index != -1) else ""
@@ -70,7 +71,7 @@ class Executor:
 
     def DoRename(self, path, newName):
         # newPath = path.parents[0] / newName
-        newPath = self.setting.fileDir + os.sep + newName
+        newPath = self.setting.destDir + os.sep + newName
 
         print(f"Rename {colorama.Back.BLUE}{str(path)}{colorama.Back.RESET}\n" +
               f"To     {colorama.Back.GREEN}{str(newPath)}{colorama.Back.RESET}")

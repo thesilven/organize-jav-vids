@@ -10,6 +10,7 @@ class Setting:
             self.fileExts = settingJson["fileExts"]
             self.fileExtsOnly = settingJson["fileExtsOnly"]
             self.fileDir = settingJson["fileDir"]
+            self.destDir = settingJson["destDir"]
             self.getInfoInterval = settingJson["getInfoInterval"]
             self.fileNameFormat = settingJson["fileNameFormat"]
             self.language = settingJson["language"]
@@ -22,6 +23,7 @@ class Setting:
             self.ignoreWords = settingJson["ignoreWords"]
             self.retryFailedDB = settingJson["retryFailedDB"]
             self.javdbToken = settingJson["javdbToken"]
+            self.mongoDbUrl = settingJson["mongoDbUrl"]
             # TODO: enable db or not
         except:
             print("read config file failed")

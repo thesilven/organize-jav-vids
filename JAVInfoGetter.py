@@ -38,6 +38,10 @@ class JAVInfoGetter:
         info["director"] = self.ParseDirector()
         info["maker"] = self.ParseMaker()
         info["actors"] = self.ParseActor()
+        actors = info["actors"]
+        if not actors or type(actors) is str and actors in ['----', 'N/A']:
+            info['actors'] = 'Unknown'
+
         info["album"] = self.ParseAlbum()
         info["duration"] = self.ParseDuration()
         info["date"] = self.ParseDate()
@@ -45,7 +49,9 @@ class JAVInfoGetter:
         info["rating"] = self.ParseRating()
         info["link"] = link
 
-        if not info["title"]:
+        if info["bangou"] and info["bangou"] != bangou:
+            return None, False
+        elif not info["title"]:
             info["bangou"] = bangou
             return info, False
         else:
@@ -53,12 +59,13 @@ class JAVInfoGetter:
                 info["bangou"], "").strip(" ")
 
         self.dataManager.Add(info)
-        print(json.dumps(info, indent=4, ensure_ascii=False))
+        # print(json.dumps(info, indent=4, ensure_ascii=False))
 
         if bangou != info["bangou"]:
-            info2 = info.copy()
-            info2["bangou"] = bangou
-            self.dataManager.Add(info2)
+            # info2 = info.copy()
+            # info2["bangou"] = bangou
+            # self.dataManager.Add(info2)
+            return info, False
         # XXX: use timer instead sleep
         time.sleep(self.setting.getInfoInterval)
 
@@ -173,29 +180,34 @@ class JAVInfoGetter_javdb(JAVInfoGetter):
         if not self.soup.select_one("#videos"):
             return ""
         try:  # TODO: check try range
-            link = "http://javdb.com/" + \
-                self.soup.select_one("#videos").select_one("a")[
-                    "href"] + "?locale=en"
-            if self.setting.javdbToken:
-                cookies = {"remember_me_token": self.setting.javdbToken}
-            else:
-                cookies = dict()
-            response = requests.get(link, cookies=cookies)
-            self.soup = BeautifulSoup(response.text, "html.parser")
-            infos = self.soup.select_one(
-                ".video-panel-info").select(".panel-block")
-        except:
+            videos_a = self.soup.select_one("#videos").select('a')
+            for video_a in videos_a:
+                link = "http://javdb.com/" + video_a["href"] + "?locale=en"
+                if self.setting.javdbToken:
+                    cookies = {"remember_me_token": self.setting.javdbToken}
+                else:
+                    cookies = dict()
+                response = requests.get(link, cookies=cookies)
+                self.soup = BeautifulSoup(response.text, "html.parser")
+                infos = self.soup.select_one(
+                    ".video-panel-info").select(".panel-block")
+
+                self.infoDict = dict()
+                for info in infos:
+                    key = info.select_one("strong")
+                    if not key:
+                        continue
+                    key = key.getText().strip(":")
+                    value = info.select_one("span").getText()
+                    self.infoDict[key] = value
+
+                if self.infoDict['ID'] and self.infoDict['ID'] == bangou:
+                    return link
+        except Exception as ex:
             # TODO: get web content failed
+            print(ex)
             return link
 
-        self.infoDict = dict()
-        for info in infos:
-            key = info.select_one("strong")
-            if not key:
-                continue
-            key = key.getText().strip(":")
-            value = info.select_one("span").getText()
-            self.infoDict[key] = value
         return link
 
     def ParseBangou(self):
